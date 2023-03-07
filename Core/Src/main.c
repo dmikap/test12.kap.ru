@@ -118,7 +118,7 @@ int main(void)
   MX_ADC1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -150,14 +150,16 @@ int main(void)
 		  mode_cnt = 10;//  10 = 100 мс
 
 		  ADC_Struct_update (&hadc1, &sConfig, &adc_struct); // обновление данных по измерениям на 1 канал с послед. переключением
-		  if(uartDataRx) // были получены данные
+		  if(uartDataRx) // переполнение цикл буфера
 		  {
 			  uartDataRx = RESET;
 			  HAL_UART_Receive_DMA(&huart1,(uint8_t*) uartRXData, UART_RX_DATA_LENGTH);
-			  if (Usart_Rx_cmd_data (uartRXData))
+		  }
+
+			  if (Usart_Rx_cmd_data (uartRXData,"TEST"))
 			  uartCmdRx = SET; // получена команда TEST
 
-		  }
+		}
 
 		  if(uartCmdRx && data_ready)
 		  {
@@ -172,7 +174,7 @@ int main(void)
 
     /* USER CODE END WHILE */
    }
-}
+
     /* USER CODE BEGIN 3 */
 
   /* USER CODE END 3 */

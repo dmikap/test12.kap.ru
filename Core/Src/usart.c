@@ -99,16 +99,24 @@ void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, U
 
 }
 
-int Usart_Rx_cmd_data (uint8_t uartRXData[UART_RX_DATA_LENGTH])
+int Usart_Rx_cmd_data (uint8_t uartRXData[UART_RX_DATA_LENGTH], uint8_t* pData)
 {
-	 int i;
+	 uint8_t i;
+	 uint8_t buff[UART_RX_DATA_LENGTH+SIZE_OF_CMD];
+	 memset(buff,0,UART_RX_DATA_LENGTH+SIZE_OF_CMD);
+	 memcpy(buff,uartRXData,UART_RX_DATA_LENGTH);
+	 for(i=0;i<SIZE_OF_CMD;i++)
+	 {
+	 buff[UART_RX_DATA_LENGTH+i] = uartRXData[i];
+	 }
 
 	 for(i=0; i<UART_RX_DATA_LENGTH; i++)
      {
-	    if (uartRXData[i] == 'T' && uartRXData[i+1] == 'E' && uartRXData[i+2] == 'S' && uartRXData[i+3] == 'T')
-		{
-			return SET;
-		}
+         if(buff[i] == pData[0] && buff[i+1] == pData[1] && buff[i+2] == pData[2] && buff[i+3] == pData[3])
+         {
+        	memset(uartRXData,0,UART_RX_DATA_LENGTH);
+        	return SET;
+         }
 	 }
 	 return RESET;
 }

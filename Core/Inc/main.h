@@ -29,11 +29,12 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
-
+#include "string.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#define ADC_DATA_LENGTH                                        10
-#define UART_RX_DATA_LENGTH                                     4
+#define ADC_DATA_LENGTH                                        20
+#define SIZE_OF_CMD                                             4
+#define UART_RX_DATA_LENGTH                                    10
 #define SYMB_QUANT                                              9
 #define KU_BAT1                                               419 //с учетом делителя Ku*100*3.3
 #define KU_BAT2                                               844
@@ -102,7 +103,7 @@ void Error_Handler(void);
 uint16_t avg (uint16_t* data);
 void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfig, ADC_inputsTypeDef *adc_struct);
 void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, USART_TXTypeDef* usart_struct);
-int Usart_Rx_cmd_data (uint8_t uartRXData[UART_RX_DATA_LENGTH]);
+int Usart_Rx_cmd_data (uint8_t uartRXData[UART_RX_DATA_LENGTH], uint8_t *pData);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

@@ -16,7 +16,7 @@ Common symbol       size              file
 
 uwTick              0x4               ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
 pFlash              0x20              ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.o
-uartRXData          0xa               ./Core/Src/main.o
+uartRXData          0x4               ./Core/Src/main.o
 hdma_usart1_tx      0x44              ./Core/Src/main.o
 hadc1               0x30              ./Core/Src/main.o
 hdma_usart1_rx      0x44              ./Core/Src/main.o
@@ -2931,7 +2931,7 @@ LOAD c:/st/stm32cubeide_1.7.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
  .igot.plt      0x0000000020000054        0x0 c:/st/stm32cubeide_1.7.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_2.0.0.202105311346/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7-m/nofp/crtbegin.o
                 0x0000000020000054                . = ALIGN (0x4)
 
-.bss            0x0000000020000054      0x194 load address 0x00000000080039d0
+.bss            0x0000000020000054      0x18c load address 0x00000000080039d0
                 0x0000000020000054                _sbss = .
                 0x0000000020000054                __bss_start__ = _sbss
  *(.bss)
@@ -2952,30 +2952,30 @@ LOAD c:/st/stm32cubeide_1.7.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
                 0x0000000020000075                data_ready
  *(COMMON)
  *fill*         0x0000000020000076        0x2 
- COMMON         0x0000000020000078      0x16c ./Core/Src/main.o
+ COMMON         0x0000000020000078      0x164 ./Core/Src/main.o
                 0x0000000020000078                uartRXData
-                0x0000000020000084                hdma_usart1_tx
-                0x00000000200000c8                hadc1
-                0x00000000200000f8                hdma_usart1_rx
-                0x000000002000013c                huart1
-                0x0000000020000180                adc_struct
-                0x00000000200001a0                hdma_adc1
- COMMON         0x00000000200001e4        0x4 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
-                0x00000000200001e4                uwTick
-                0x00000000200001e8                . = ALIGN (0x4)
-                0x00000000200001e8                _ebss = .
-                0x00000000200001e8                __bss_end__ = _ebss
+                0x000000002000007c                hdma_usart1_tx
+                0x00000000200000c0                hadc1
+                0x00000000200000f0                hdma_usart1_rx
+                0x0000000020000134                huart1
+                0x0000000020000178                adc_struct
+                0x0000000020000198                hdma_adc1
+ COMMON         0x00000000200001dc        0x4 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
+                0x00000000200001dc                uwTick
+                0x00000000200001e0                . = ALIGN (0x4)
+                0x00000000200001e0                _ebss = .
+                0x00000000200001e0                __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x00000000200001e8      0x600 load address 0x00000000080039d0
-                0x00000000200001e8                . = ALIGN (0x8)
+                0x00000000200001e0      0x600 load address 0x00000000080039d0
+                0x00000000200001e0                . = ALIGN (0x8)
                 [!provide]                        PROVIDE (end = .)
-                0x00000000200001e8                PROVIDE (_end = .)
-                0x00000000200003e8                . = (. + _Min_Heap_Size)
- *fill*         0x00000000200001e8      0x200 
-                0x00000000200007e8                . = (. + _Min_Stack_Size)
- *fill*         0x00000000200003e8      0x400 
-                0x00000000200007e8                . = ALIGN (0x8)
+                0x00000000200001e0                PROVIDE (_end = .)
+                0x00000000200003e0                . = (. + _Min_Heap_Size)
+ *fill*         0x00000000200001e0      0x200 
+                0x00000000200007e0                . = (. + _Min_Stack_Size)
+ *fill*         0x00000000200003e0      0x400 
+                0x00000000200007e0                . = ALIGN (0x8)
 
 /DISCARD/
  libc.a(*)
@@ -3185,36 +3185,36 @@ LOAD c:/st/stm32cubeide_1.7.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.exte
  .debug_line    0x0000000000007839      0x874 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.o
  .debug_line    0x00000000000080ad     0x1a03 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.o
 
-.debug_str      0x0000000000000000    0x834d7
- .debug_str     0x0000000000000000    0x8130d ./Core/Src/adc.o
-                                      0x816c5 (size before relaxing)
- .debug_str     0x000000000008130d      0x8d6 ./Core/Src/main.o
-                                      0x82008 (size before relaxing)
- .debug_str     0x0000000000081be3       0x96 ./Core/Src/stm32f1xx_hal_msp.o
-                                      0x81bfc (size before relaxing)
- .debug_str     0x0000000000081c79      0x11a ./Core/Src/stm32f1xx_it.o
-                                      0x817d1 (size before relaxing)
- .debug_str     0x0000000000081d93       0x52 ./Core/Src/system_stm32f1xx.o
+.debug_str      0x0000000000000000    0x83507
+ .debug_str     0x0000000000000000    0x8131a ./Core/Src/adc.o
+                                      0x816d2 (size before relaxing)
+ .debug_str     0x000000000008131a      0x8d6 ./Core/Src/main.o
+                                      0x82015 (size before relaxing)
+ .debug_str     0x0000000000081bf0       0x96 ./Core/Src/stm32f1xx_hal_msp.o
+                                      0x81c09 (size before relaxing)
+ .debug_str     0x0000000000081c86      0x11a ./Core/Src/stm32f1xx_it.o
+                                      0x817de (size before relaxing)
+ .debug_str     0x0000000000081da0       0x75 ./Core/Src/system_stm32f1xx.o
                                       0x811fc (size before relaxing)
- .debug_str     0x0000000000081de5       0x43 ./Core/Src/usart.o
-                                      0x817ab (size before relaxing)
- .debug_str     0x0000000000081e28       0x36 ./Core/Startup/startup_stm32f103r8tx.o
+ .debug_str     0x0000000000081e15       0x43 ./Core/Src/usart.o
+                                      0x817b8 (size before relaxing)
+ .debug_str     0x0000000000081e58       0x36 ./Core/Startup/startup_stm32f103r8tx.o
                                          0x59 (size before relaxing)
- .debug_str     0x0000000000081e5e      0x2ec ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
+ .debug_str     0x0000000000081e8e      0x2ec ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
                                       0x8188d (size before relaxing)
- .debug_str     0x000000000008214a      0x343 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_adc.o
+ .debug_str     0x000000000008217a      0x343 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_adc.o
                                       0x8188c (size before relaxing)
- .debug_str     0x000000000008248d      0x22b ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
+ .debug_str     0x00000000000824bd      0x22b ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
                                       0x81895 (size before relaxing)
- .debug_str     0x00000000000826b8      0x235 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.o
+ .debug_str     0x00000000000826e8      0x235 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.o
                                       0x815d7 (size before relaxing)
- .debug_str     0x00000000000828ed      0x31f ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
+ .debug_str     0x000000000008291d      0x31f ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
                                       0x815c0 (size before relaxing)
- .debug_str     0x0000000000082c0c      0x24f ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
+ .debug_str     0x0000000000082c3c      0x24f ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
                                       0x815f9 (size before relaxing)
- .debug_str     0x0000000000082e5b       0xb9 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.o
+ .debug_str     0x0000000000082e8b       0xb9 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.o
                                       0x81386 (size before relaxing)
- .debug_str     0x0000000000082f14      0x5c3 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.o
+ .debug_str     0x0000000000082f44      0x5c3 ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.o
                                       0x81beb (size before relaxing)
 
 .comment        0x0000000000000000       0x53

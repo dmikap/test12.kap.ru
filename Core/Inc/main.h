@@ -33,7 +33,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #define ADC_DATA_LENGTH                                        10
-#define UART_RX_DATA_LENGTH                                    10
+#define UART_RX_DATA_LENGTH                                     4
 #define SYMB_QUANT                                              9
 #define KU_BAT1                                               419 //с учетом делителя Ku*100*3.3
 #define KU_BAT2                                               844

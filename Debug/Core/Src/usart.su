@@ -1,2 +1,3 @@
 usart.c:11:6:Usart_Tx_data	32	static
-usart.c:102:5:Usart_Rx_cmd_data	24	static
+usart.c:103:9:usart_get_byte	24	static
+usart.c:116:5:usart_find_cmd	24	static

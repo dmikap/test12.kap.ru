@@ -14,12 +14,12 @@ void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, U
 	uint16_t i;
 	tempint = adc_struct->U_bat1;
 
-	for(i=SYMB_QUANT-2;i>3;i--)
+	for(i = SYMB_QUANT-2; i > 3; i--)
 	{
-		if(i!=5)
+		if(i != 5)
 		{
 	       usart_struct->U_bat_1[i] = (tempint % 10) + 48;
-	       tempint/=10;
+	       tempint /= 10;
 		}
 	    else usart_struct->U_bat_1[i] = '.';
 
@@ -29,12 +29,12 @@ void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, U
 
 	tempint = adc_struct->U_bat2;
 
-	for(i=SYMB_QUANT-2;i>3;i--)
+	for(i = SYMB_QUANT-2; i > 3; i--)
 	{
-		 if(i!=5)
+		 if(i != 5)
 		 {
 		    usart_struct->U_bat_2[i] = (tempint % 10) + 48;
-		    tempint/=10;
+		    tempint /= 10;
 		 }
 		 else usart_struct->U_bat_2[i] = '.';
 
@@ -44,12 +44,12 @@ void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, U
 
 	tempint = adc_struct->U_bat3;
 
-	for(i=SYMB_QUANT-2;i>3;i--)
+	for(i = SYMB_QUANT-2; i > 3; i--)
 	{
-		if(i!=5)
+		if(i != 5)
 		{
 			 usart_struct->U_bat_3[i] = (tempint % 10) + 48;
-			 tempint/=10;
+			 tempint /= 10;
 		}
 		else usart_struct->U_bat_3[i] = '.';
 	}
@@ -58,12 +58,12 @@ void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, U
 
 	tempint = adc_struct->U_bat4;
 
-	for(i=SYMB_QUANT-2;i>3;i--)
+	for(i = SYMB_QUANT-2; i > 3; i--)
 	{
-		if(i!=5)
+		if(i != 5)
 		{
 			usart_struct->U_bat_4[i] = (tempint % 10) + 48;
-			tempint/=10;
+			tempint /= 10;
 		}
 		else usart_struct->U_bat_4[i] = '.';
 	}
@@ -72,12 +72,12 @@ void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, U
 
 	tempint = adc_struct->I_disch;
 
-	for(i=SYMB_QUANT-1;i>3;i--)
+	for(i = SYMB_QUANT-1; i > 3; i--)
 	{
-		if(i!=6)
+		if(i != 6)
 		{
 			usart_struct->I_disch_[i] = (tempint % 10) + 48;
-			tempint/=10;
+			tempint /= 10;
 		}
 		else usart_struct->I_disch_[i] = '.';
 	}
@@ -99,17 +99,39 @@ void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, U
 
 }
 
-int Usart_Rx_cmd_data (uint8_t uartRXData[UART_RX_DATA_LENGTH])
-{
-	 int i;
 
-	 for(i=0; i<UART_RX_DATA_LENGTH; i++)
-     {
-	    if (uartRXData[i] == 'T' && uartRXData[i+1] == 'E' && uartRXData[i+2] == 'S' && uartRXData[i+3] == 'T')
-		{
-			return SET;
-		}
+uint8_t usart_get_byte (USART_ringbuf_TypeDef* ringbuf_struct)
+{
+	uint8_t byte = 0;
+	byte = ringbuf_struct->buf[ringbuf_struct->head];
+	ringbuf_struct->cnt--;
+	if(ringbuf_struct->head < BUF_SIZE-1)
+	ringbuf_struct->head++;
+	else ringbuf_struct->head = 0;
+	return byte;
+}
+
+
+
+int usart_find_cmd (uint8_t* cmd, USART_ringbuf_TypeDef* ringbuf_struct)
+{
+	 uint8_t i=0;
+
+	 uint8_t size = sizeof(cmd);
+	 uint8_t stat = 0;
+	 while(ringbuf_struct->cnt)
+	 {
+		 if(usart_get_byte(ringbuf_struct) == cmd[i])
+		 {
+			 i++;
+			 if(i == size)
+				 stat = 1;
+		 }
+		 else i=0;
 	 }
+	 if(stat)
+	 return SET;
+	 else
 	 return RESET;
 }
 

@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -33,7 +33,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -46,24 +45,24 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 UART_HandleTypeDef huart1;
-DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
-uint16_t mode_cnt = 100;
+uint16_t adc_cnt = 100;
+uint16_t usart_cnt = 100;
 uint16_t SW_cnt = 0;
-uint8_t  uartCmdRx = 0;
-uint8_t  uartDataRx = 0;
+uint8_t uartCmdRx = 0;
+uint8_t uartDataRx = 0;
 
 uint8_t status = 0;
 uint8_t data_ready = 0;
 
 ADC_inputsTypeDef adc_struct;
-USART_TXTypeDef   usart_struct = {"U1 =0.00\n","U2 =0.00\n","U3 =0.00\n","U4 =0.00\n","IC =00.00\n","SW =0E0\n"};
-ADC_ChannelConfTypeDef sConfig = {0, ADC_REGULAR_RANK_1, ADC_SAMPLETIME_41CYCLES_5};
-
-
-
+USART_TXTypeDef usart_struct = { "U1 =0.00\n", "U2 =0.00\n", "U3 =0.00\n",
+		"U4 =0.00\n", "IC =00.00\n", "SW =0E0\n" };
+ADC_ChannelConfTypeDef sConfig = { 0, ADC_REGULAR_RANK_1,
+		ADC_SAMPLETIME_41CYCLES_5 };
+USART_ringbuf_TypeDef ringbuf_struct = {0,0,0,0};
 
 uint8_t uartRXData[UART_RX_DATA_LENGTH];
 
@@ -92,7 +91,6 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -108,7 +106,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  SysTick_Config(SystemCoreClock/100);//10ms
+  SysTick_Config(SystemCoreClock / 100); //10ms
 
   /* USER CODE END SysInit */
 
@@ -119,64 +117,56 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_UART_IRQHandler(&huart1);
+  HAL_UART_Receive_IT(&huart1, &ringbuf_struct.buf[ringbuf_struct.tail], 1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_struct.adcData, ADC_DATA_LENGTH);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  HAL_UART_Receive_DMA(&huart1,(uint8_t*) uartRXData, UART_RX_DATA_LENGTH);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_struct.adcData, ADC_DATA_LENGTH);
+
 
   while (1)
   {
 
-      if(status == SC)// короткое замыкание (I>10A)
-      {
-    	  if(SW_cnt == 0)// прошло 10 сек
-    	  {
-    		  status = OK;
-    		  HAL_GPIO_WritePin(SWITCH_RESET);//подключение нагрузки
- //   		  HAL_GPIO_WritePin(TEST_RESET);
-    		  sConfig.Channel = 4;
-    		  HAL_ADC_ConfigChannel(&hadc1, &sConfig); // смена канала АЦП на тот, что измеряет ток
-    		  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_struct.adcData, ADC_DATA_LENGTH);
-    		  while (HAL_DMA_GetState(&hdma_adc1) != HAL_DMA_STATE_READY);
-    		  ADC_Struct_update (&hadc1, &sConfig, &adc_struct);
-    	  }
-      }
-
-	  if (mode_cnt == 0)
+	  if (status == SC) // короткое замыкание (I>10A)
 	  {
+		if (SW_cnt == 0) // прошло 10 сек
+		{
+		   status = OK;
+		   HAL_GPIO_WritePin(SWITCH_RESET); //подключение нагрузки
+		   HAL_GPIO_WritePin(TEST_RESET);
+		}
+	  }
 
-		  mode_cnt = 10;//  10 = 100 мс
+	  if (adc_cnt == 0)
+	  {
+		adc_cnt = 10; //  10 = 100 мс
+		ADC_Struct_update(&hadc1, &sConfig, &adc_struct); // обновление данных по измерениям на 1 канал с послед. переключением
+	  }
 
-		  ADC_Struct_update (&hadc1, &sConfig, &adc_struct); // обновление данных по измерениям на 1 канал с послед. переключением
-		  if(uartDataRx) // были получены данные
-		  {
-			  uartDataRx = RESET;
-			  HAL_UART_Receive_DMA(&huart1,(uint8_t*) uartRXData, UART_RX_DATA_LENGTH);
-			  if (Usart_Rx_cmd_data (uartRXData))
-			  uartCmdRx = SET; // получена команда TEST
+	  if (usart_cnt == 0)
+	  {
+		usart_cnt = 50;
+		if (usart_find_cmd("TEST", &ringbuf_struct))
+		    uartCmdRx = SET; // получена команда TEST
 
-		  }
+		if (uartCmdRx && data_ready)//получена команда TEST и обновлены данные измерений
+		{
+			uartCmdRx = RESET;
+			Usart_Tx_data(&huart1, &adc_struct, &usart_struct); // отправит данные измерений по USART
+			data_ready = 0;
+		}
 
-		  if(uartCmdRx && data_ready)
-		  {
-			  uartCmdRx = RESET;
-			  Usart_Tx_data (&huart1, &adc_struct, &usart_struct);// отправит данные измерений по USART
-			  data_ready = 0;
-		  }
-
-	   }
-
-
+	  }
+  }
 
     /* USER CODE END WHILE */
-   }
-}
+
     /* USER CODE BEGIN 3 */
 
   /* USER CODE END 3 */
-
+}
 
 /**
   * @brief System Clock Configuration
@@ -235,6 +225,7 @@ static void MX_ADC1_Init(void)
 
   /* USER CODE END ADC1_Init 0 */
 
+  ADC_AnalogWDGConfTypeDef AnalogWDGConfig = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
@@ -253,9 +244,20 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+  /** Configure Analog WatchDog 1
+  */
+  AnalogWDGConfig.WatchdogMode = ADC_ANALOGWATCHDOG_SINGLE_REG;
+  AnalogWDGConfig.HighThreshold = 1240;
+  AnalogWDGConfig.LowThreshold = 0;
+  AnalogWDGConfig.Channel = ADC_CHANNEL_4;
+  AnalogWDGConfig.ITMode = ENABLE;
+  if (HAL_ADC_AnalogWDGConfig(&hadc1, &AnalogWDGConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Channel = ADC_CHANNEL_4;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_41CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
@@ -317,9 +319,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel4_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
-  /* DMA1_Channel5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
 }
 
@@ -333,11 +332,22 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PA5 */
   GPIO_InitStruct.Pin = GPIO_PIN_5;
@@ -352,39 +362,29 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin = GPIO_PIN_13;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-	if(hadc->Instance == ADC1)
-	  {
-	   // adc_struct.chadc = 1;
-	    HAL_ADC_Stop_DMA(&hadc1);
-	    ADC_ConversionStop_Disable(&hadc1);
-	  }
+  if (hadc->Instance == ADC1)
+  {
+	  HAL_ADC_Stop_DMA(&hadc1);
+	  ADC_ConversionStop_Disable(&hadc1);
+  }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	if(huart->Instance == USART1)
-	  {
-	    uartDataRx = SET;
-	  }
-}
+  if(ringbuf_struct.tail<BUF_SIZE-1)
+	  ringbuf_struct.tail++;
+  else ringbuf_struct.tail = 0;
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-	if(huart->Instance == USART1)
-		  {
+  if(ringbuf_struct.cnt>BUF_SIZE*2)
+	  ringbuf_struct.cnt = ringbuf_struct.cnt - BUF_SIZE;
+  ringbuf_struct.cnt++;
 
-		  }
+  while (HAL_UART_Receive_IT (&huart1, &ringbuf_struct.buf[ringbuf_struct.tail], 1) == HAL_BUSY );
 }
 
 /* USER CODE END 4 */
@@ -396,11 +396,10 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+		/* User can add his own implementation to report the HAL error return state */
+		__disable_irq();
+
+
   /* USER CODE END Error_Handler_Debug */
 }
 

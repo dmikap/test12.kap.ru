@@ -29,12 +29,14 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
-
+#include "string.h"
+#include "stdio.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #define ADC_DATA_LENGTH                                        10
 #define UART_RX_DATA_LENGTH                                     4
 #define SYMB_QUANT                                              9
+#define BUF_SIZE                                               20
 #define KU_BAT1                                               419 //с учетом делителя Ku*100*3.3
 #define KU_BAT2                                               844
 #define KU_BAT3                                              1263
@@ -83,6 +85,15 @@ typedef struct
     char I_disch_[SYMB_QUANT+1];
     char SW_state_[8];
 } USART_TXTypeDef;
+
+typedef struct
+{
+	uint8_t  buf[BUF_SIZE];
+	uint8_t  head;
+	uint8_t  tail;
+    uint16_t  cnt;
+} USART_ringbuf_TypeDef;
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -96,13 +107,13 @@ typedef struct
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void Error_Handler(void);
 uint16_t avg (uint16_t* data);
 void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfig, ADC_inputsTypeDef *adc_struct);
 void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, USART_TXTypeDef* usart_struct);
-int Usart_Rx_cmd_data (uint8_t uartRXData[UART_RX_DATA_LENGTH]);
+int usart_find_cmd (uint8_t* cmd, USART_ringbuf_TypeDef* ringbuf_struct);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

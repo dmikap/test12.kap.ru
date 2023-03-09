@@ -1,2 +1,2 @@
 adc.c:15:6:ADC_Struct_update	24	static
-adc.c:77:10:avg	24	static
+adc.c:81:10:avg	24	static

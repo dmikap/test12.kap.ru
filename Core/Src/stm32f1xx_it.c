@@ -42,8 +42,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern uint16_t mode_cnt;
+extern uint16_t adc_cnt;
+extern uint16_t usart_cnt;
 extern uint16_t SW_cnt;
+extern uint8_t status;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,7 +60,7 @@ extern uint16_t SW_cnt;
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
-extern DMA_HandleTypeDef hdma_usart1_rx;
+extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
@@ -188,14 +190,18 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-if (mode_cnt>0)
-	{
-		mode_cnt --;
-	}
-if (SW_cnt>0)
-	{
-		SW_cnt --;
-	}
+  if (adc_cnt > 0)
+  {
+    adc_cnt --;
+  }
+  if (SW_cnt > 0)
+  {
+    SW_cnt --;
+  }
+  if (usart_cnt > 0)
+  {
+    usart_cnt --;
+  }
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
@@ -240,17 +246,20 @@ void DMA1_Channel4_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 channel5 global interrupt.
+  * @brief This function handles ADC1 and ADC2 global interrupts.
   */
-void DMA1_Channel5_IRQHandler(void)
+void ADC1_2_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
+  /* USER CODE BEGIN ADC1_2_IRQn 0 */
+   HAL_GPIO_WritePin(SWITCH_SET);
+   HAL_GPIO_WritePin(TEST_SET);
+   status = SC;
+   SW_cnt = 1000;
+  /* USER CODE END ADC1_2_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc1);
+  /* USER CODE BEGIN ADC1_2_IRQn 1 */
 
-  /* USER CODE END DMA1_Channel5_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart1_rx);
-  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel5_IRQn 1 */
+  /* USER CODE END ADC1_2_IRQn 1 */
 }
 
 /**

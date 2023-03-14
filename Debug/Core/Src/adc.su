@@ -1,2 +1,4 @@
-adc.c:15:6:ADC_Struct_update	24	static
-adc.c:77:10:avg	24	static
+adc.c:16:6:ADC_Struct_update	24	static
+adc.c:78:10:avg	24	static
+adc.c:89:7:comp	16	static
+adc.c:94:10:median	24	static

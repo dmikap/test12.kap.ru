@@ -30,9 +30,11 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 #include "string.h"
+#include "stdio.h"
+#include "stdlib.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#define ADC_DATA_LENGTH                                        20
+#define ADC_DATA_LENGTH                                        10
 #define SIZE_OF_CMD                                             4
 #define UART_RX_DATA_LENGTH                                    10
 #define SYMB_QUANT                                              9
@@ -104,6 +106,8 @@ uint16_t avg (uint16_t* data);
 void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfig, ADC_inputsTypeDef *adc_struct);
 void Usart_Tx_data (UART_HandleTypeDef* huartx, ADC_inputsTypeDef* adc_struct, USART_TXTypeDef* usart_struct);
 int Usart_Rx_cmd_data (uint8_t uartRXData[UART_RX_DATA_LENGTH], uint8_t *pData);
+uint16_t median (uint16_t* data);
+short comp(const void *, const void *);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

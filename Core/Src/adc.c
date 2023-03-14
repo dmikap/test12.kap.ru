@@ -12,6 +12,7 @@ extern uint8_t status;
 extern uint16_t SW_cnt;
 extern uint8_t data_ready;
 
+
 void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfig, ADC_inputsTypeDef *adc_struct)
 {
 
@@ -19,7 +20,7 @@ void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfi
  {
 
 	  case 0:
-		      adc_struct->U_bat1 = (uint32_t)avg(adc_struct->adcData) * KU_BAT1 / 4095;
+		      adc_struct->U_bat1 = (uint32_t)median(adc_struct->adcData) * KU_BAT1 / 4095;
 		      if(adc_struct->U_bat1 < U_BAT_MIN)
 		    	  HAL_GPIO_WritePin(SWITCH_RESET);
 		      sConfig->Channel = 1;
@@ -28,7 +29,7 @@ void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfi
 		      break;
 
 	  case 1:
-	  		  adc_struct->U_bat2 = (uint32_t)avg(adc_struct->adcData) * KU_BAT2 / 4095 - adc_struct->U_bat1;
+	  		  adc_struct->U_bat2 = (uint32_t)median(adc_struct->adcData) * KU_BAT2 / 4095 - adc_struct->U_bat1;
 	  		  if(adc_struct->U_bat2 < U_BAT_MIN)
 	  			  HAL_GPIO_WritePin(SWITCH_RESET);
 	  		  sConfig->Channel = 2;
@@ -37,7 +38,7 @@ void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfi
 	  		  break;
 
 	  case 2:
-	  	  	  adc_struct->U_bat3 = (uint32_t)avg(adc_struct->adcData) * KU_BAT3 / 4095 - adc_struct->U_bat2
+	  	  	  adc_struct->U_bat3 = (uint32_t)median(adc_struct->adcData) * KU_BAT3 / 4095 - adc_struct->U_bat2
 			  - adc_struct->U_bat1;
 	  	  	  if(adc_struct->U_bat3 < U_BAT_MIN)
 	  	  	  HAL_GPIO_WritePin(SWITCH_RESET);
@@ -47,7 +48,7 @@ void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfi
 	  	      break;
 
 	  case 3:
-	 	  	  adc_struct->U_bat4 = (uint32_t)avg(adc_struct->adcData) * KU_BAT4 / 4095 - adc_struct->U_bat3
+	 	  	  adc_struct->U_bat4 = (uint32_t)median(adc_struct->adcData) * KU_BAT4 / 4095 - adc_struct->U_bat3
 			  - adc_struct->U_bat2 - adc_struct->U_bat1;
 	 	  	  if(adc_struct->U_bat4 < U_BAT_MIN)
 	 	  		  HAL_GPIO_WritePin(SWITCH_RESET);
@@ -57,7 +58,7 @@ void ADC_Struct_update (ADC_HandleTypeDef *hadcx, ADC_ChannelConfTypeDef *sConfi
 	 	  	  break;
 
 	  case 4:
-	  	 	  adc_struct->I_disch = (uint32_t)avg(adc_struct->adcData) * KI_DIS / 4095; // 3.3*10*100
+	  	 	  adc_struct->I_disch = (uint32_t)median(adc_struct->adcData) * KI_DIS / 4095; // 3.3*10*100
 	  	 	  if (adc_struct->I_disch > I_DIS_MAX)
 	  	 	  {
 	  	 		  HAL_GPIO_WritePin(SWITCH_SET);
@@ -83,5 +84,25 @@ uint16_t avg (uint16_t* data)
 		summ = summ + data[i];
 	}
 	return summ/ADC_DATA_LENGTH;
+}
+
+short comp(const void *i, const void *j)
+{
+  return *(short *)i - *(short *)j;
+}
+
+uint16_t median (uint16_t* data)
+{
+	uint16_t med;
+	qsort(data, ADC_DATA_LENGTH, sizeof(short), comp);
+	if (ADC_DATA_LENGTH % 2)
+	{
+		med = data[ADC_DATA_LENGTH/2];
+	}
+	else
+	{
+		med = (data[ADC_DATA_LENGTH/2-1] +  data[ADC_DATA_LENGTH/2])/2;
+	}
+	return med;
 }
 
